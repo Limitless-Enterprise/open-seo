@@ -119,6 +119,36 @@ export const savedKeywords = pgTable(
   ],
 );
 
+// Project-scoped research search history (keywords, domain, backlinks, AI tools).
+export const researchSearchHistory = pgTable(
+  "research_search_history",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    feature: text("feature").notNull(),
+    payloadJson: text("payload_json").notNull(),
+    dedupKey: text("dedup_key").notNull(),
+    searchedByUserId: text("searched_by_user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    searchedAt: timestampColumn("searched_at").notNull().default(isoNow),
+  },
+  (table) => [
+    uniqueIndex("research_search_history_project_feature_dedup_idx").on(
+      table.projectId,
+      table.feature,
+      table.dedupKey,
+    ),
+    index("research_search_history_project_feature_searched_at_idx").on(
+      table.projectId,
+      table.feature,
+      table.searchedAt,
+    ),
+  ],
+);
+
 export const savedKeywordTags = pgTable(
   "saved_keyword_tags",
   {

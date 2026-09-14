@@ -1,54 +1,38 @@
-import { z } from "zod";
-import { useLocalHistoryStore } from "@/client/hooks/useLocalHistoryStore";
-import { jsonCodec } from "@/shared/json";
+import { useResearchSearchHistory } from "@/client/hooks/researchSearchHistory/useResearchSearchHistory";
+import type { KeywordResearchHistoryPayload } from "@/shared/research-search-history";
 
-interface SearchHistoryItem {
-  keyword: string;
-  locationCode: number;
-  locationName: string;
-  timestamp: number;
-}
-
-const MAX_HISTORY = 20;
-
-const searchHistoryItemSchema = z.object({
-  keyword: z.string(),
-  locationCode: z.number(),
-  locationName: z.string(),
-  timestamp: z.number(),
-});
-
-const searchHistorySchema = z.array(searchHistoryItemSchema);
-const searchHistoryCodec = jsonCodec(searchHistorySchema);
+export type SearchHistoryItem = KeywordResearchHistoryPayload & {
+  id: string;
+  searchedAt: string;
+  searchedBy: {
+    userId: string;
+    name: string | null;
+    email: string;
+  };
+};
 
 export function useSearchHistory(projectId: string) {
-  const { history, isLoaded, addItem, removeItem, clearItems } =
-    useLocalHistoryStore<
-      SearchHistoryItem,
-      Omit<SearchHistoryItem, "timestamp">
-    >({
-      storageKey: `search-history:${projectId}`,
-      maxItems: MAX_HISTORY,
-      parse: (raw) => {
-        const parsed = searchHistoryCodec.safeParse(raw);
-        return parsed.success ? parsed.data : null;
-      },
-      isSameItem: (existing, next) =>
-        existing.keyword === next.keyword &&
-        existing.locationCode === next.locationCode,
-      createItem: (item) => ({
-        ...item,
-        timestamp: Date.now(),
-      }),
-      getItemKey: (item) => item.timestamp,
-    });
+  const {
+    history,
+    isLoaded,
+    hasMore,
+    isLoadingMore,
+    loadMore,
+    addSearch,
+    removeHistoryItem,
+  } = useResearchSearchHistory(projectId, "keyword_research");
 
   return {
     history,
     isLoaded,
-    addSearch: (keyword: string, locationCode: number, locationName: string) =>
-      addItem({ keyword, locationCode, locationName }),
-    clearHistory: clearItems,
-    removeHistoryItem: removeItem,
+    hasMore,
+    isLoadingMore,
+    loadMore,
+    addSearch: (
+      keyword: string,
+      locationCode: number,
+      locationName: string,
+    ) => addSearch({ keyword, locationCode, locationName }),
+    removeHistoryItem,
   };
 }

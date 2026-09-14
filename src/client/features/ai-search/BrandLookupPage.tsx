@@ -146,6 +146,9 @@ function BrandLookupPageInner({
   const {
     history,
     isLoaded: historyLoaded,
+    hasMore: historyHasMore,
+    isLoadingMore: historyLoadingMore,
+    loadMore: loadMoreHistory,
     addSearch,
     removeHistoryItem,
   } = useBrandLookupSearchHistory(projectId);
@@ -327,6 +330,9 @@ function BrandLookupPageInner({
                 projectId={projectId}
                 history={history}
                 historyLoaded={historyLoaded}
+                hasMore={historyHasMore}
+                isLoadingMore={historyLoadingMore}
+                onLoadMore={loadMoreHistory}
                 onRemoveHistoryItem={removeHistoryItem}
               />
             ) : null}

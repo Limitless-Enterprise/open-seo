@@ -79,6 +79,9 @@ function PromptExplorerPageInner({
   const {
     history,
     isLoaded: historyLoaded,
+    hasMore: historyHasMore,
+    isLoadingMore: historyLoadingMore,
+    loadMore: loadMoreHistory,
     addSearch,
     removeHistoryItem,
   } = usePromptExplorerSearchHistory(projectId);
@@ -265,6 +268,9 @@ function PromptExplorerPageInner({
                 projectId={projectId}
                 history={history}
                 historyLoaded={historyLoaded}
+                hasMore={historyHasMore}
+                isLoadingMore={historyLoadingMore}
+                onLoadMore={loadMoreHistory}
                 onRemoveHistoryItem={removeHistoryItem}
               />
             ) : null}

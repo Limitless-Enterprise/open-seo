@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Clock, History, Link2, X } from "lucide-react";
 import type { BacklinksSearchHistoryItem } from "@/client/hooks/useBacklinksSearchHistory";
+import { SearchHistoryLoadMore } from "@/client/features/research/SearchHistoryLoadMore";
+import { SearchHistoryMeta } from "@/client/features/research/SearchHistoryMeta";
 import { RESEARCH_SCOPE_LABELS } from "@/shared/researchScope";
 import { toScopeSearchParam } from "@/shared/researchScope";
 
@@ -8,13 +10,19 @@ type Props = {
   projectId: string;
   history: BacklinksSearchHistoryItem[];
   historyLoaded: boolean;
-  onRemoveHistoryItem: (timestamp: number) => void;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
+  onLoadMore?: () => void;
+  onRemoveHistoryItem: (id: string) => void;
 };
 
 export function BacklinksHistorySection({
   projectId,
   history,
   historyLoaded,
+  hasMore = false,
+  isLoadingMore = false,
+  onLoadMore,
   onRemoveHistoryItem,
 }: Props) {
   if (!historyLoaded) {
@@ -46,7 +54,7 @@ export function BacklinksHistorySection({
       <div className="grid gap-2">
         {history.map((item) => (
           <div
-            key={item.timestamp}
+            key={item.id}
             className="group flex items-center gap-2 rounded-lg border border-base-300 bg-base-100 p-2"
           >
             <Link
@@ -75,16 +83,15 @@ export function BacklinksHistorySection({
               </div>
             </Link>
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs text-base-content/40">
-                {new Date(item.timestamp).toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </span>
+              <SearchHistoryMeta
+                searchedAt={item.searchedAt}
+                searchedBy={item.searchedBy}
+              />
               <button
                 type="button"
                 className="btn btn-ghost btn-xs opacity-0 group-hover:opacity-100 p-1"
-                onClick={() => onRemoveHistoryItem(item.timestamp)}
+                onClick={() => onRemoveHistoryItem(item.id)}
+                aria-label="Remove from history"
               >
                 <X className="size-3" />
               </button>
@@ -92,6 +99,14 @@ export function BacklinksHistorySection({
           </div>
         ))}
       </div>
+
+      {onLoadMore ? (
+        <SearchHistoryLoadMore
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={onLoadMore}
+        />
+      ) : null}
     </section>
   );
 }

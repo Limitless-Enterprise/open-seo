@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { SortingState, Updater } from "@tanstack/react-table";
 import { BacklinksSearchCard } from "./BacklinksSearchCard";
 import { BacklinksBody } from "./BacklinksPageContent";
@@ -118,6 +118,9 @@ export function BacklinksPage({
   const {
     history,
     isLoaded: historyLoaded,
+    hasMore: historyHasMore,
+    isLoadingMore: historyLoadingMore,
+    loadMore: loadMoreHistory,
     addSearch,
     removeHistoryItem,
   } = useBacklinksSearchHistory(projectId);
@@ -179,6 +182,26 @@ export function BacklinksPage({
     }),
     [],
   );
+
+  const lastTrackedKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!overviewQuery.isSuccess || searchState.target.trim() === "") return;
+    const key = `${searchState.target}\0${searchState.scope}`;
+    if (lastTrackedKeyRef.current === key) return;
+    lastTrackedKeyRef.current = key;
+    addSearch({ target: searchState.target, scope: searchState.scope });
+  }, [
+    addSearch,
+    overviewQuery.isSuccess,
+    searchState.scope,
+    searchState.target,
+  ]);
+
+  useEffect(() => {
+    if (searchState.target.trim() !== "") return;
+    lastTrackedKeyRef.current = null;
+  }, [searchState.target]);
+
   return (
     <div className="px-4 py-4 pb-24 overflow-auto md:px-6 md:py-6 md:pb-8">
       <div className="mx-auto max-w-7xl space-y-4">
@@ -196,7 +219,6 @@ export function BacklinksPage({
           onSubmit={(values) => {
             searchTabs.openTab(toBacklinksTabInput(values));
             navigateToBacklinksSearch(navigate, values);
-            addSearch({ target: values.target, scope: values.scope });
           }}
         />
 
@@ -204,6 +226,9 @@ export function BacklinksPage({
           projectId={projectId}
           history={history}
           historyLoaded={historyLoaded}
+          historyHasMore={historyHasMore}
+          historyLoadingMore={historyLoadingMore}
+          onLoadMoreHistory={loadMoreHistory}
           overviewData={overviewQuery.data}
           overviewError={overviewErrorMessage}
           overviewLoading={overviewQuery.isLoading}

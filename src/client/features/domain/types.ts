@@ -68,12 +68,4 @@ export type DomainSortMode = DomainControlsValues["sort"];
 export type SortOrder = "asc" | "desc";
 export type DomainActiveTab = "keywords" | "pages";
 
-export type DomainHistoryItem = {
-  timestamp: number;
-  domain: string;
-  scope: ResearchScope;
-  sort: DomainSortMode;
-  tab: DomainActiveTab;
-  search?: string;
-  locationCode?: number;
-};
+export type { DomainSearchHistoryItem as DomainHistoryItem } from "@/client/hooks/useDomainSearchHistory";
