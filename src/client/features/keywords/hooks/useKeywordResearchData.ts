@@ -139,7 +139,9 @@ export function useKeywordResearchData(
 
   const handledSuccessKeyRef = useRef<string | null>(null);
   useEffect(() => {
-    if (!request || !researchQuery.isSuccess || !researchQuery.data) return;
+    if (!request || !researchQuery.data?.rows.length) {
+      return;
+    }
     if (handledSuccessKeyRef.current === queryKeyString) return;
     handledSuccessKeyRef.current = queryKeyString;
 
@@ -161,7 +163,6 @@ export function useKeywordResearchData(
     queryKeyString,
     request,
     researchQuery.data,
-    researchQuery.isSuccess,
   ]);
 
   const hasSearched = parseKeywordInput(keywordInput).length > 0;

@@ -1,49 +1,34 @@
-import { identity, sortBy } from "remeda";
-import { z } from "zod";
-import { useTimestampedSearchHistory } from "@/client/hooks/useTimestampedSearchHistory";
-import {
-  promptExplorerModelSchema,
-  webSearchCountryCodeSchema,
-} from "@/types/schemas/ai-search";
+import { useResearchSearchHistory } from "@/client/hooks/researchSearchHistory/useResearchSearchHistory";
+import type { PromptExplorerHistoryPayload } from "@/shared/research-search-history";
 
-const promptExplorerSearchBodySchema = z.object({
-  prompt: z.string(),
-  highlightBrand: z.string(),
-  models: z.array(promptExplorerModelSchema),
-  webSearch: z.boolean(),
-  webSearchCountryCode: webSearchCountryCodeSchema,
-});
-
-type PromptExplorerSearchBody = z.infer<typeof promptExplorerSearchBodySchema>;
-
-export type PromptExplorerSearchHistoryItem = PromptExplorerSearchBody & {
-  timestamp: number;
+export type PromptExplorerSearchHistoryItem = PromptExplorerHistoryPayload & {
+  id: string;
+  searchedAt: string;
+  searchedBy: {
+    userId: string;
+    name: string | null;
+    email: string;
+  };
 };
 
-function sameModels(a: string[], b: string[]): boolean {
-  if (a.length !== b.length) return false;
-  const sortedA = sortBy(a, identity());
-  const sortedB = sortBy(b, identity());
-  return sortedA.every((model, index) => model === sortedB[index]);
-}
-
-function isSameSearch(
-  a: PromptExplorerSearchBody,
-  b: PromptExplorerSearchBody,
-): boolean {
-  return (
-    a.prompt === b.prompt &&
-    a.highlightBrand === b.highlightBrand &&
-    a.webSearch === b.webSearch &&
-    a.webSearchCountryCode === b.webSearchCountryCode &&
-    sameModels(a.models, b.models)
-  );
-}
-
 export function usePromptExplorerSearchHistory(projectId: string) {
-  return useTimestampedSearchHistory({
-    storageKey: `prompt-explorer-search-history:${projectId}`,
-    bodySchema: promptExplorerSearchBodySchema,
-    isSame: isSameSearch,
-  });
+  const {
+    history,
+    isLoaded,
+    hasMore,
+    isLoadingMore,
+    loadMore,
+    addSearch,
+    removeHistoryItem,
+  } = useResearchSearchHistory(projectId, "prompt_explorer");
+
+  return {
+    history,
+    isLoaded,
+    hasMore,
+    isLoadingMore,
+    loadMore,
+    addSearch,
+    removeHistoryItem,
+  };
 }

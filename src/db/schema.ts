@@ -70,6 +70,7 @@ export const {
   userOnboardingAnswers,
   projects,
   savedKeywords,
+  researchSearchHistory,
   savedKeywordTags,
   savedKeywordTagAssignments,
   keywordMetrics,

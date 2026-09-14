@@ -1,18 +1,26 @@
 import { Clock, History, X } from "lucide-react";
 import { Globe } from "lucide-react";
-import type { DomainHistoryItem } from "@/client/features/domain/types";
+import type { DomainSearchHistoryItem } from "@/client/hooks/useDomainSearchHistory";
+import { SearchHistoryLoadMore } from "@/client/features/research/SearchHistoryLoadMore";
+import { SearchHistoryMeta } from "@/client/features/research/SearchHistoryMeta";
 import { RESEARCH_SCOPE_LABELS } from "@/shared/researchScope";
 
 type Props = {
-  history: DomainHistoryItem[];
+  history: DomainSearchHistoryItem[];
   historyLoaded: boolean;
-  onRemoveHistoryItem: (timestamp: number) => void;
-  onSelectHistoryItem: (item: DomainHistoryItem) => void;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
+  onLoadMore?: () => void;
+  onRemoveHistoryItem: (id: string) => void;
+  onSelectHistoryItem: (item: DomainSearchHistoryItem) => void;
 };
 
 export function DomainHistorySection({
   history,
   historyLoaded,
+  hasMore = false,
+  isLoadingMore = false,
+  onLoadMore,
   onRemoveHistoryItem,
   onSelectHistoryItem,
 }: Props) {
@@ -45,7 +53,7 @@ export function DomainHistorySection({
       <div className="grid gap-2">
         {history.map((item) => (
           <div
-            key={item.timestamp}
+            key={item.id}
             className="group flex items-center gap-2 rounded-lg border border-base-300 bg-base-100 p-2"
           >
             <button
@@ -64,16 +72,15 @@ export function DomainHistorySection({
               </div>
             </button>
             <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs text-base-content/40">
-                {new Date(item.timestamp).toLocaleDateString(undefined, {
-                  month: "short",
-                  day: "numeric",
-                })}
-              </span>
+              <SearchHistoryMeta
+                searchedAt={item.searchedAt}
+                searchedBy={item.searchedBy}
+              />
               <button
                 type="button"
                 className="btn btn-ghost btn-xs opacity-0 group-hover:opacity-100 p-1"
-                onClick={() => onRemoveHistoryItem(item.timestamp)}
+                onClick={() => onRemoveHistoryItem(item.id)}
+                aria-label="Remove from history"
               >
                 <X className="size-3" />
               </button>
@@ -81,6 +88,14 @@ export function DomainHistorySection({
           </div>
         ))}
       </div>
+
+      {onLoadMore ? (
+        <SearchHistoryLoadMore
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={onLoadMore}
+        />
+      ) : null}
     </section>
   );
 }

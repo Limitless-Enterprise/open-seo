@@ -28,6 +28,9 @@ type BacklinksBodyProps = {
   projectId: string;
   history: BacklinksSearchHistoryItem[];
   historyLoaded: boolean;
+  historyHasMore?: boolean;
+  historyLoadingMore?: boolean;
+  onLoadMoreHistory?: () => void;
   overviewData: BacklinksOverviewData | undefined;
   overviewError: string | null;
   overviewLoading: boolean;
@@ -43,7 +46,7 @@ type BacklinksBodyProps = {
   tabFetching: boolean;
   onPageChange: (nextPage: number) => void;
   onPageSizeChange: (nextPageSize: number) => void;
-  onRemoveHistoryItem: (timestamp: number) => void;
+  onRemoveHistoryItem: (id: string) => void;
   onRetryOverview: () => void;
   onSortingChange: OnChangeFn<SortingState>;
   onTabChange: (tab: BacklinksSearchState["tab"]) => void;
@@ -61,6 +64,9 @@ export function BacklinksBody({
   projectId,
   history,
   historyLoaded,
+  historyHasMore = false,
+  historyLoadingMore = false,
+  onLoadMoreHistory,
   overviewData,
   overviewError,
   overviewLoading,
@@ -118,6 +124,9 @@ export function BacklinksBody({
         projectId={projectId}
         history={history}
         historyLoaded={historyLoaded}
+        hasMore={historyHasMore}
+        isLoadingMore={historyLoadingMore}
+        onLoadMore={onLoadMoreHistory}
         onRemoveHistoryItem={onRemoveHistoryItem}
       />
     );

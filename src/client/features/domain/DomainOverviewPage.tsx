@@ -197,6 +197,9 @@ function useDomainOverviewState({
   const {
     history,
     isLoaded: historyLoaded,
+    hasMore: historyHasMore,
+    isLoadingMore: historyLoadingMore,
+    loadMore: loadMoreHistory,
     addSearch,
     removeHistoryItem,
   } = useDomainSearchHistory(projectId);
@@ -431,6 +434,9 @@ function useDomainOverviewState({
     canSaveKeywords,
     history,
     historyLoaded,
+    historyHasMore,
+    historyLoadingMore,
+    loadMoreHistory,
     removeHistoryItem,
     setSearchParams,
     applySort,
@@ -587,6 +593,9 @@ export function DomainOverviewPage({
             <DomainHistorySection
               history={state.history}
               historyLoaded={state.historyLoaded}
+              hasMore={state.historyHasMore}
+              isLoadingMore={state.historyLoadingMore}
+              onLoadMore={state.loadMoreHistory}
               onRemoveHistoryItem={state.removeHistoryItem}
               onSelectHistoryItem={state.handleHistorySelect}
             />

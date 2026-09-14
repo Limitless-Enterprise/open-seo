@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Clock, Globe, History, Search, X } from "lucide-react";
 import { LOCATIONS } from "@/client/features/keywords/utils";
+import { SearchHistoryLoadMore } from "@/client/features/research/SearchHistoryLoadMore";
+import { SearchHistoryMeta } from "@/client/features/research/SearchHistoryMeta";
 import type { KeywordResearchControllerState } from "./types";
 
 type Props = {
@@ -57,7 +59,14 @@ function SearchHistoryState({
   controller: KeywordResearchControllerState;
   projectId: string;
 }) {
-  const { history, historyLoaded, removeHistoryItem } = controller;
+  const {
+    history,
+    historyLoaded,
+    historyHasMore,
+    historyLoadingMore,
+    loadMoreHistory,
+    removeHistoryItem,
+  } = controller;
 
   if (!historyLoaded) {
     return null;
@@ -79,7 +88,7 @@ function SearchHistoryState({
           <div className="grid gap-2">
             {history.map((item) => (
               <div
-                key={item.timestamp}
+                key={item.id}
                 className="group flex items-center gap-2 rounded-lg border border-base-300 bg-base-100 p-2"
               >
                 <Link
@@ -104,16 +113,14 @@ function SearchHistoryState({
                   </div>
                 </Link>
                 <div className="flex shrink-0 items-center gap-2">
-                  <span className="text-xs text-base-content/40">
-                    {new Date(item.timestamp).toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
+                  <SearchHistoryMeta
+                    searchedAt={item.searchedAt}
+                    searchedBy={item.searchedBy}
+                  />
                   <button
                     type="button"
                     className="btn btn-ghost btn-xs opacity-0 group-hover:opacity-100 p-1"
-                    onClick={() => removeHistoryItem(item.timestamp)}
+                    onClick={() => removeHistoryItem(item.id)}
                   >
                     <X className="size-3" />
                   </button>
@@ -121,6 +128,11 @@ function SearchHistoryState({
               </div>
             ))}
           </div>
+          <SearchHistoryLoadMore
+            hasMore={historyHasMore}
+            isLoadingMore={historyLoadingMore}
+            onLoadMore={loadMoreHistory}
+          />
         </section>
       ) : (
         <section className="rounded-2xl border border-dashed border-base-300 bg-base-100/70 p-6 text-center text-base-content/50 space-y-3">

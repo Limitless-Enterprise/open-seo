@@ -11,7 +11,10 @@ type Props = {
   projectId: string;
   history: PromptExplorerSearchHistoryItem[];
   historyLoaded: boolean;
-  onRemoveHistoryItem: (timestamp: number) => void;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
+  onLoadMore?: () => void;
+  onRemoveHistoryItem: (id: string) => void;
 };
 
 export function PromptExplorerHistorySection({ projectId, ...props }: Props) {
